@@ -37,11 +37,11 @@ The model processes the following weights to determine the final selection proba
 | Factor | Weight | Description |
 | :--- | :--- | :--- |
 | **Interest** | 30% | How much he likes the field |
-| **Career** | 25% | Job opportunities and salary potential |
+| **Future Career** | 25% | Job opportunities and salary potential |
 | **Exam Results** | 20% | How well his results match the entry requirements |
 | **Location** | 10% | Distance from home / preferred city |
-| **Fees** | 10% | Cost of the programme |
-| **Explore** | 5% | Openness to trying something new |
+| **Fees** | 10% | Less funds to pay for the programme |
+| **Willingness to Explore** | 5% | Openness to trying something new |
 
 ---
 
