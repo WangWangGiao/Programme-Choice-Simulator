@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Programme Choice Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Color Palette */
+      --color-background-page: #F3F4F6;
+      --color-background-primary: #FFFFFF;
+      --color-background-secondary: #F9FAFB;
+      --color-background-tertiary: #E1F5EE;
+      --color-border-primary: #D1D5DB;
+      --color-border-secondary: #1D9E75;
+      --color-border-tertiary: #E5E7EB;
+      --color-text-primary: #111827;
+      --color-text-secondary: #6B7280;
+
+      /* Typography & Border Radius */
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --border-radius-md: 8px;
+      --border-radius-lg: 16px;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--color-background-page);
+      color: var(--color-text-primary);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      padding: 2rem 1rem;
+    }
+
+    .app {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: var(--color-background-primary);
+      padding: 2rem;
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md);
+    }
+
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--color-border-tertiary);
+      padding-bottom: 1.5rem;
+      gap: 1rem;
+    }
+
+    .top-bar h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+
+    .top-bar p {
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      margin-top: 4px;
+    }
+
+    .winner-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--color-background-tertiary);
+      color: #085041;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1.5rem;
+      background: var(--color-background-secondary);
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid var(--color-border-tertiary);
+      width: fit-content;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+      color: var(--color-text-secondary);
+      transition: all .2s ease;
+      border: 1px solid transparent;
+    }
+
+    .tab:hover {
+      color: var(--color-text-primary);
+    }
+
+    .tab.active {
+      background: var(--color-background-primary);
+      color: var(--color-border-secondary);
+      border-color: var(--color-border-tertiary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .section {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .section.visible {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 1.25rem;
+    }
+
+    .prog-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .prog-block {
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-md);
+      padding: 14px;
+      background: var(--color-background-secondary);
+      transition: transform 0.2s;
+    }
+
+    .prog-block:hover {
+      border-color: var(--color-border-primary);
+    }
+
+    .prog-name-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .prog-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .prog-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+
+    .prog-score-badge {
+      margin-left: auto;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-border-secondary);
+      background: var(--color-background-tertiary);
+      border: 1px solid rgba(29, 158, 117, 0.2);
+      border-radius: 20px;
+      padding: 4px 10px;
+    }
+
+    .factor-sliders {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 16px;
+    }
+
+    .mini-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mini-label {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      width: 55px;
+      flex-shrink: 0;
+    }
+
+    .mini-val {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      width: 16px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 14px;
+      width: 14px;
+      border-radius: 50%;
+      background: var(--color-border-secondary);
+      cursor: pointer;
+      margin-top: -5px;
+    }
+
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      background: var(--color-border-tertiary);
+      border-radius: 2px;
+    }
+
+    .weight-section {
+      margin-top: 1.5rem;
+    }
+
+    .weight-rows {
+      display: grid;
+      gap: 12px;
+    }
+
+    .w-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .w-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      width: 72px;
+      flex-shrink: 0;
+    }
+
+    .w-input {
+      width: 60px;
+      font-size: 13px;
+      padding: 6px 8px;
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--border-radius-md);
+      background: var(--color-background-primary);
+      color: var(--color-text-primary);
+      text-align: center;
+      font-weight: 500;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .w-input:focus {
+      border-color: var(--color-border-secondary);
+    }
+
+    .sum-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: var(--color-background-secondary);
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-md);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+    }
+
+    .sum-num {
+      font-weight: 600;
+      color: var(--color-text-primary);
+      font-size: 16px;
+    }
+
+    .confirm-btn {
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      border-radius: var(--border-radius-md);
+      background: var(--color-border-secondary);
+      color: white;
+      transition: all .2s;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .confirm-btn:hover {
+      background: #16805f;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .confirm-btn:active {
+      transform: scale(.98);
+    }
+
+    .charts-area {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+    }
+
+    .chart-card {
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chart-card.wide {
+      grid-column: 1 / -1;
+    }
+
+    .chart-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 16px;
+    }
+
+    .leg {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      margin-top: 16px;
+    }
+
+    .leg-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+    }
+
+    .leg-sq {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    /* Heatmap Table Improvements */
+    #heat-tbl th {
+      border-bottom: 1px solid var(--color-border-tertiary);
+      padding-bottom: 8px !important;
+    }
+
+    #heat-tbl td {
+      border-bottom: 1px solid var(--color-border-tertiary);
+    }
+
+    #heat-tbl tr:last-child td {
+      border-bottom: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+    <div class="top-bar">
+      <div>
+        <h1>Programme Choice Simulator</h1>
+        <p>Adjust ratings and weights, then confirm to recompute.</p>
+      </div>
+      <div id="winner-pill" class="winner-pill">
+        <svg width="16" height="16" viewBox="0 0 12 12">
+          <circle cx="6" cy="6" r="6" fill="#1D9E75" />
+          <path d="M3.5 6.5L5 8l3.5-4" stroke="#fff" stroke-width="1.3" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        <span id="winner-text">—</span>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('inputs',this)">Ratings &amp; Weights</div>
+      <div class="tab" onclick="switchTab('charts',this)">Analytics &amp; Charts</div>
+    </div>
+
+    <div class="section visible" id="tab-inputs">
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">Programme ratings (1–5 per factor)</div>
+          <div class="prog-grid" id="prog-grid"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Factor weights</div>
+          <div class="weight-rows" id="weight-rows"></div>
+          <div class="sum-row">
+            <span>Total weight</span>
+            <span class="sum-num" id="sum-disp">1.00</span>
+          </div>
+          <button class="confirm-btn" onclick="applyAndRefresh()">Confirm &amp; Update Charts ↗</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="tab-charts">
+      <div class="charts-area">
+        <div class="chart-card">
+          <div class="chart-title">Choice probability</div>
+          <div style="position:relative;height:240px"><canvas id="cProb" role="img"
+              aria-label="Choice probabilities per programme">Probabilities.</canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Utility score</div>
+          <div style="position:relative;height:240px"><canvas id="cUtil" role="img"
+              aria-label="Utility scores per programme">Utility.</canvas></div>
+        </div>
+        <div class="chart-card wide">
+          <div class="chart-title">Sensitivity — career weight impact on probability</div>
+          <div style="position:relative;height:260px"><canvas id="cSens" role="img"
+              aria-label="Sensitivity of probabilities to career weight">Sensitivity.</canvas></div>
+          <div class="leg" id="sens-leg"></div>
+        </div>
+        <div class="chart-card wide">
+          <div class="chart-title">Factor contributions heatmap</div>
+          <div style="overflow-x:auto">
+            <table id="heat-tbl" style="border-collapse:collapse;width:100%;font-size:12px;table-layout:fixed"></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script>
+    const programmes = ['Pure Sciences', 'Applied Sciences', 'Engineering', 'Accounting', 'Management', 'Arts'];
+    const factors = ['Interest', 'Exam', 'Career', 'Location', 'Fees', 'Explore'];
+    const progColors = ['#378ADD', '#1D9E75', '#D85A30', '#D4537E', '#BA7517', '#7F77DD'];
+    const progDashes = [[], [6, 3], [3, 3], [8, 2, 2, 2], [4, 4], [2, 2]];
+
+    let ratings = [
+      [5, 5, 3, 3, 4, 2], [4, 5, 4, 3, 3, 3], [4, 5, 5, 2, 5, 2],
+      [3, 4, 4, 4, 4, 2], [3, 3, 3, 5, 3, 3], [2, 3, 2, 4, 2, 4]
+    ];
+    let weights = [0.30, 0.20, 0.25, 0.10, 0.10, 0.05];
+
+    function compute(r, w) {
+      const u = r.map(row => row.reduce((s, v, j) => s + v * w[j], 0));
+      const mx = Math.max(...u);
+      const e = u.map(x => Math.exp(x - mx));
+      const es = e.reduce((a, b) => a + b, 0);
+      return { u, p: e.map(x => x / es) };
+    }
+
+    function switchTab(id, el) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+      el.classList.add('active');
+      document.getElementById('tab-' + id).classList.add('visible');
+      if (id === 'charts') { setTimeout(() => window.dispatchEvent(new Event('resize')), 50); }
+    }
+
+    function getSliderRatings() {
+      return programmes.map((_, i) => factors.map((_, j) => parseInt(document.getElementById(`r-${i}-${j}`).value) || 1));
+    }
+    function getWeights() {
+      return factors.map((_, j) => parseFloat(document.getElementById(`w-${j}`).value) || 0);
+    }
+
+    function buildProgGrid() {
+      const grid = document.getElementById('prog-grid');
+      grid.innerHTML = '';
+      programmes.forEach((prog, i) => {
+        const block = document.createElement('div');
+        block.className = 'prog-block';
+        const nameRow = `<div class="prog-name-row"><div class="prog-dot" style="background:${progColors[i]}"></div><span class="prog-label">${prog}</span><span class="prog-score-badge" id="pscore-${i}">—</span></div>`;
+        const sliders = `<div class="factor-sliders">${factors.map((f, j) => `<div class="mini-row"><span class="mini-label">${f}</span><input type="range" class="mini" id="r-${i}-${j}" min="1" max="5" step="1" value="${ratings[i][j]}" oninput="onRatingChange(${i},${j})"><span class="mini-val" id="rv-${i}-${j}">${ratings[i][j]}</span></div>`).join('')}</div>`;
+        block.innerHTML = nameRow + sliders;
+        grid.appendChild(block);
+      });
+    }
+
+    function buildWeightRows() {
+      const cont = document.getElementById('weight-rows');
+      cont.innerHTML = '';
+      factors.forEach((f, j) => {
+        const row = document.createElement('div');
+        row.className = 'w-row';
+        row.innerHTML = `<span class="w-label">${f}</span><input type="range" style="flex:1" min="0" max="1" step="0.01" value="${weights[j].toFixed(2)}" id="ws-${j}" oninput="onWeightSlide(${j})"><input class="w-input" type="number" id="w-${j}" min="0" max="1" step="0.01" value="${weights[j].toFixed(2)}" oninput="onWeightInput(${j})">`;
+        cont.appendChild(row);
+      });
+    }
+
+    function onRatingChange(i, j) {
+      const v = parseInt(document.getElementById(`r-${i}-${j}`).value);
+      document.getElementById(`rv-${i}-${j}`).textContent = v;
+      liveUpdateBadges();
+    }
+    function onWeightSlide(j) {
+      const v = parseFloat(document.getElementById(`ws-${j}`).value);
+      document.getElementById(`w-${j}`).value = v.toFixed(2);
+      updateWeightSum(); liveUpdateBadges();
+    }
+    function onWeightInput(j) {
+      const v = Math.min(1, Math.max(0, parseFloat(document.getElementById(`w-${j}`).value) || 0));
+      document.getElementById(`ws-${j}`).value = v;
+      updateWeightSum(); liveUpdateBadges();
+    }
+    function updateWeightSum() {
+      const s = factors.reduce((a, _, j) => a + (parseFloat(document.getElementById(`w-${j}`).value) || 0), 0);
+      document.getElementById('sum-disp').textContent = s.toFixed(2);
+    }
+    function liveUpdateBadges() {
+      const r = getSliderRatings(), w = getWeights();
+      const tot = w.reduce((a, b) => a + b, 0);
+      const wn = tot > 0 ? w.map(v => v / tot) : w;
+      const { u, p } = compute(r, wn);
+      programmes.forEach((_, i) => {
+        document.getElementById(`pscore-${i}`).textContent = (p[i] * 100).toFixed(1) + '%';
+      });
+      const best = p.indexOf(Math.max(...p));
+      document.getElementById('winner-text').textContent = programmes[best] + ' ' + (p[best] * 100).toFixed(1) + '%';
+    }
+
+    let chartProb = null, chartUtil = null, chartSens = null;
+
+    function initCharts() {
+      Chart.defaults.font.family = "'Inter', sans-serif";
+      Chart.defaults.color = "#6B7280";
+
+      chartProb = new Chart(document.getElementById('cProb'), { type: 'bar', data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderRadius: 6, borderSkipped: false }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.raw.toFixed(1) + '%' } } }, scales: { x: { ticks: { callback: v => v + '%' }, grid: { color: 'rgba(0,0,0,0.04)' } }, y: { grid: { display: false }, ticks: { font: { size: 12, weight: 500 }, color: "#111827" } } } } });
+      chartUtil = new Chart(document.getElementById('cUtil'), { type: 'bar', data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderRadius: 6, borderSkipped: false }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.raw.toFixed(2) } } }, scales: { x: { grid: { color: 'rgba(0,0,0,0.04)' } }, y: { grid: { display: false }, ticks: { font: { size: 12, weight: 500 }, color: "#111827" } } } } });
+      chartSens = new Chart(document.getElementById('cSens'), { type: 'line', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false, backgroundColor: 'rgba(17, 24, 39, 0.9)', titleFont: { size: 13 }, bodyFont: { size: 13 }, padding: 10 } }, scales: { x: { title: { display: true, text: 'Career weight', font: { size: 12, weight: 500 } }, grid: { color: 'rgba(0,0,0,0.04)' } }, y: { title: { display: true, text: 'Probability (%)', font: { size: 12, weight: 500 } }, grid: { color: 'rgba(0,0,0,0.04)' } } } } });
+    }
+
+    function updateAllCharts() {
+      const r = getSliderRatings(), w = getWeights();
+      const tot = w.reduce((a, b) => a + b, 0);
+      const wn = tot > 0 ? w.map(v => v / tot) : w;
+      weights = [...wn]; ratings = r;
+      const { u, p } = compute(r, wn);
+
+      const idx = [...Array(6).keys()].sort((a, b) => p[b] - p[a]);
+      chartProb.data.labels = idx.map(i => programmes[i]);
+      chartProb.data.datasets[0].data = idx.map(i => +(p[i] * 100).toFixed(2));
+      chartProb.data.datasets[0].backgroundColor = idx.map(i => progColors[i]);
+      chartProb.update();
+
+      chartUtil.data.labels = idx.map(i => programmes[i]);
+      chartUtil.data.datasets[0].data = idx.map(i => +u[i].toFixed(3));
+      chartUtil.data.datasets[0].backgroundColor = idx.map(i => progColors[i]);
+      chartUtil.update();
+
+      const careerRange = [0, .1, .2, .3, .4, .5, .6];
+      chartSens.data.labels = careerRange.map(v => (v * 100).toFixed(0) + '%');
+      chartSens.data.datasets = programmes.map((prog, i) => ({
+        label: prog,
+        data: careerRange.map(cw => {
+          const wt = [...wn]; const rem = [0, 1, 3, 4, 5];
+          wt[2] = cw; const rs = rem.reduce((s, j) => s + weights[j], 0) || 1;
+          const sc = (1 - cw) / rs; rem.forEach(j => wt[j] = weights[j] * sc);
+          const { p: pt } = compute(r, wt); return +(pt[i] * 100).toFixed(2);
+        }),
+        borderColor: progColors[i], backgroundColor: progColors[i] + '22',
+        borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, tension: .3, fill: false,
+        borderDash: progDashes[i]
+      }));
+      chartSens.update();
+
+      const leg = document.getElementById('sens-leg');
+      leg.innerHTML = programmes.map((p, i) => `<span class="leg-item"><span class="leg-sq" style="background:${progColors[i]}"></span>${p}</span>`).join('');
+
+      buildHeatmap(r, wn);
+      const best = p.indexOf(Math.max(...p));
+      document.getElementById('winner-text').textContent = programmes[best] + ' ' + (p[best] * 100).toFixed(1) + '%';
+    }
+
+    function buildHeatmap(r, w) {
+      const tbl = document.getElementById('heat-tbl');
+      const colW = Math.floor(100 / (factors.length + 2));
+      tbl.innerHTML = `<colgroup><col style="width:${colW * 1.8}%">${factors.map(() => `<col style="width:${colW}%">`).join('')}<col style="width:${colW}%"></colgroup>
+  <tr><th style="text-align:left;padding:8px 6px;font-size:11px;color:var(--color-text-secondary);font-weight:600"></th>${factors.map(f => `<th style="text-align:center;padding:8px 3px;font-size:11px;color:var(--color-text-secondary);font-weight:600">${f}</th>`).join('')}<th style="text-align:center;padding:8px 6px;font-size:11px;color:var(--color-text-secondary);font-weight:600">Total</th></tr>
+  ${programmes.map((prog, i) => {
+        const cs = r[i].map((rv, j) => rv * w[j]);
+        const tot = cs.reduce((a, b) => a + b, 0);
+        return `<tr><td style="padding:10px 6px;font-size:13px;color:var(--color-text-primary);font-weight:600;white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${progColors[i]};margin-right:8px;vertical-align:middle"></span>${prog}</td>${cs.map(v => { const n = v / 5; const a = .12 + n * .65; return `<td style="text-align:center;padding:6px 3px;"><div style="padding:4px;border-radius:4px;background:rgba(55,138,221,${a.toFixed(2)});font-size:12px;font-weight:600;color:${n > .4 ? '#FFFFFF' : '#185FA5'}">${v.toFixed(2)}</div></td>`; }).join('')}<td style="text-align:center;padding:10px 6px;font-size:13px;font-weight:600;color:var(--color-text-primary)">${tot.toFixed(2)}</td></tr>`;
+      }).join('')}`;
+    }
+
+    function applyAndRefresh() {
+      updateAllCharts();
+      document.querySelectorAll('.tab')[1].click();
+    }
+
+    buildProgGrid();
+    buildWeightRows();
+    updateWeightSum();
+    liveUpdateBadges();
+    initCharts();
+    updateAllCharts();
+  </script>
+
+</body>
+
+</html>
